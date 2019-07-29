@@ -442,15 +442,17 @@ class TestApp(unittest.TestCase):
         self.assertEqual("A notification", note_contents)
         self.assertEqual("A warning", warn_contents)
 
-    def test_sitemap(self):
+    def test_urls(self):
         """
         Check we can retrieve a list of all URLs in the URL map at
         /sitemap.txt
         """
 
-        response = self.client.get("/sitemap.txt")
-
-        self.assertIn(
-            "text/plain; charset=utf-8", response.headers.get("content-type")
+        parser = DocParser(
+            DiscourseAPI(base_url="https://discourse.example.com/"), 34, "/"
         )
-        self.assertEqual(b"/a\n/page-z\n/", response.data)
+        parser.parse()
+
+        self.assertIn('/a', parser.urls)
+        self.assertIn('/page-z', parser.urls)
+        self.assertIn('/', parser.urls)

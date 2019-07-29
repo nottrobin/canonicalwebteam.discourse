@@ -32,25 +32,6 @@ class DiscourseDocs(object):
         self.url_prefix = url_prefix
         self.parser = parser
 
-        @self.blueprint.route("/sitemap.txt")
-        def sitemap_view():
-            """
-            Show a list of all URLs in the URL map
-            """
-
-            self.parser.parse()
-
-            urls = []
-
-            for key, value in self.parser.url_map.items():
-                if type(key) is str:
-                    urls.append(key)
-
-            return (
-                "\n".join(urls),
-                {"Content-Type": "text/plain; charset=utf-8"},
-            )
-
         @self.blueprint.route("/")
         @self.blueprint.route("/<path:path>")
         def document_view(path=""):

@@ -37,6 +37,7 @@ class DocParser:
         - redirects map
         And set those as properties on this object
         """
+
         index_topic = self.api.get_topic(self.index_topic_id)
         raw_index_soup = BeautifulSoup(
             index_topic["post_stream"]["posts"][0]["cooked"],
@@ -44,7 +45,9 @@ class DocParser:
         )
 
         # Parse URL & redirects mappings (get warnings)
-        self.url_map, url_warnings = self._parse_url_map(raw_index_soup)
+        self.urls, self.url_map, url_warnings = self._parse_url_map(
+            raw_index_soup
+        )
         self.redirect_map, redirect_warnings = self._parse_redirect_map(
             raw_index_soup
         )
@@ -233,6 +236,7 @@ class DocParser:
         """
 
         url_soup = self._get_section(index_soup, "URLs")
+        urls = []
         url_map = {}
         warnings = []
 
@@ -259,6 +263,7 @@ class DocParser:
 
                 topic_id = int(topic_match.groupdict()["topic_id"])
 
+                urls.append(pretty_path)
                 url_map[pretty_path] = topic_id
 
         # Add the reverse mappings as well, for efficiency
@@ -271,8 +276,9 @@ class DocParser:
             home_path = home_path.rstrip("/")
         url_map[home_path] = self.index_topic_id
         url_map[self.index_topic_id] = home_path
+        urls.append(home_path)
 
-        return url_map, warnings
+        return urls, url_map, warnings
 
     def _parse_redirect_map(self, index_soup):
         """
